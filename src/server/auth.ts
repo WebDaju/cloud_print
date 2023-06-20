@@ -14,7 +14,8 @@ import bcrypt from "bcrypt";
 import { env } from "../env.mjs";
 import { prisma } from "../server/db";
 import { TRPCError } from "@trpc/server";
-import { User } from "@prisma/client";
+import { User } from "next-auth";
+import { User as PrismaUser } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -33,6 +34,12 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
+const convertPrismaUserToNextAuthUser = (user: PrismaUser): User => {
+  return {
+    ...user,
+    id: user.id.toString(), // Convert id to string
+  };
+};
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
@@ -73,7 +80,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "email", type: "text" },
         password: { label: "password", type: "password" },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials): Promise<User | null> => {
         if (!credentials?.email || !credentials?.password)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -101,7 +108,7 @@ export const authOptions: NextAuthOptions = {
             message: "Invalid Password.",
           }); // invalid password
 
-        return user;
+        return convertPrismaUserToNextAuthUser(user);
       },
     }),
     /**

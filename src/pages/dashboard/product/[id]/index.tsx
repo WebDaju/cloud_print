@@ -36,8 +36,8 @@ const Product: NextPageWithLayout<ProductProps> = ({ id }) => {
   const [name, setName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [noofPage, setnoofPage] = useState<number>(0);
-  const [image, setImage] = useState<string>("");
-  const [pdfnew, setPdfNew] = useState<string>("");
+  const [image, setImage] = useState<string | undefined>(undefined);
+  const [pdfnew, setPdfNew] = useState<string | undefined>(undefined);
   const [imagepreview, setImagepreview] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
   const [pricePerPage, setPricePerPage] = useState<number>(0);
@@ -87,8 +87,8 @@ const Product: NextPageWithLayout<ProductProps> = ({ id }) => {
       id: parseInt(id),
       name: realdata.name,
       description: realdata.description,
-      image: realdata.image ,
-      pdf: realdata.pdf ,
+      image: realdata.image  || "",
+      pdf: realdata.pdf || "",
       noofPage: realdata.noofPage,
       total: realdata.total,
       pricePerPage: realdata.pricePerPage,
@@ -181,8 +181,8 @@ const Product: NextPageWithLayout<ProductProps> = ({ id }) => {
             setTotal(parseInt(e.target.value));
           }}
         />
-        <Image src={imagepreview } height={60} width={60} alt="productImage" />
-        <Image src={ image} height={60} width={60} alt="productImage" />
+        <Image src={imagepreview || "" } height={60} width={60} alt="productImage" />
+        <Image src={ image || ""} height={60} width={60} alt="productImage" />
         <input
           type="file"
           className="text-grey-500 text-sm

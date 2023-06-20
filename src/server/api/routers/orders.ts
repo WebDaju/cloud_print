@@ -27,7 +27,7 @@ export const orderRouters = createTRPCRouter({
           email,
           address,
           subtotal,
-          userId: userId,
+          userId: Number(userId),
           products: {
             connect: products,
           },
