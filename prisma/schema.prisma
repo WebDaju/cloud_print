@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  email          String?   @unique
+  name           String?
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  order          Order[]
+  account        Account[]
+
+  role Role @default(USER)
+}
+
+model Account {
+  id                Int     @id @default(autoincrement())
+  user              User    @relation(fields: [userId], references: [id])
+  userId            Int     @unique
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+}
+
+enum Role {
+  USER
+  ADMIN
+  COLLABATOR
+}
+
+model userFile {
+  id        Int      @id @default(autoincrement())
+  imageSrc  String?
+  createdAt DateTime @default(now())
+
+  userId Int
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  image        String
+  pricePerPage Int
+  noofPage     Int
+  total        Int
+  pdf          String
+  orders       Order[]
+  createdAt    DateTime @default(now())
+}
+
+model Image {
+  id        Int    @id @default(autoincrement())
+  public_id String
+  imageSrc  String
+}
+
+model uploadedFile {
+  id        Int    @id @default(autoincrement())
+  public_id String
+  imageSrc  String
+  // order     Order? @relation(fields: [orderId], references: [id])
+  // orderId   Int?   @unique
+}
+
+model Order {
+  id       Int       @id @default(autoincrement())
+  name     String
+  phone    BigInt
+  email    String
+  address  String
+  products Product[]
+  status   Status    @default(PENDING)
+  user     User?      @relation(fields: [userId], references: [id])
+  userId   Int       
+  subtotal Int
+
+  createdAt DateTime @default(now())
+}
+
+enum Status {
+  PENDING
+  PROCESSING
+  COMPLETED
+  DELIVERED
+}
