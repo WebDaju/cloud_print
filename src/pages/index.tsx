@@ -9,17 +9,13 @@ import { api } from "@/utils/api";
 import superjson from "superjson";
 import { prisma } from "../server/db";
 import {
+  
   GetServerSideProps,
-  GetServerSidePropsContext,
-  GetStaticProps,
   InferGetServerSidePropsType,
-  NextApiHandler,
-  NextApiRequest,
-  NextApiResponse,
+  
 } from "next";
 import { appRouter } from "@/server/api/root";
-import { createTRPCContext } from "@/server/api/trpc";
-import { getServerAuthSession } from "@/server/auth";
+
 import Meta from "@/components/Meta";
 const Home = (
   props: InferGetServerSidePropsType<typeof getServerSideProps>
@@ -70,7 +66,7 @@ export default Home;
 //     },
 //   };
 // }
-export async function getServerSideProps(context:any) {
+export const  getServerSideProps:GetServerSideProps=async(context)=>{
   const helpers = createServerSideHelpers({
     router: appRouter,
     ctx: {

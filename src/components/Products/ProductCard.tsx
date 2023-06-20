@@ -5,8 +5,7 @@ import {
     CardHeader,
     CardBody,
     Typography,
-    CardFooter,
-    Button,
+    
   } from "@material-tailwind/react";
    
   interface productProps{
@@ -17,7 +16,7 @@ import {
     price:number
   }
 
-  export default function ProductCard({id,name,description,image,price}:productProps) {
+  export default function ProductCard({name,description,image,price}:productProps) {
     return (
       <Card className="w-60 m-auto">
         <CardHeader shadow={false} floated={false} className="h-52">
