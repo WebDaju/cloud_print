@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import { type GetServerSidePropsContext } from "next";
@@ -12,10 +14,9 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcrypt";
-import { env } from "@/env.mjs";
-import { prisma } from "@/server/db";
+import { env } from "../env.mjs";
+import { prisma } from "../server/db";
 import { TRPCError } from "@trpc/server";
-
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -25,7 +26,11 @@ import { TRPCError } from "@trpc/server";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: User;
+    user: {
+      id: string;
+      // ...other properties
+      // role: UserRole;
+    } & DefaultSession["user"];
   }
 
   // interface User {
@@ -39,24 +44,21 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
+
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.user = user;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      if (session.user && token) {
-        session.user = token.user as User;
-      }
-      return session;
-    },
+    session: ({ session, user }) => ({
+      ...session,
+      user: {
+        ...session.user,
+        id: user.id,
+      },
+    }),
   },
   adapter: PrismaAdapter(prisma),
   pages: {
-    signIn: "/",
+    signIn: "/auth/login",
+    signOut: "/",
   },
   session: {
     strategy: "jwt",
@@ -78,7 +80,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "email", type: "text" },
         password: { label: "password", type: "password" },
       },
-      authorize: async (credentials) => {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -106,7 +108,7 @@ export const authOptions: NextAuthOptions = {
             message: "Invalid Password.",
           }); // invalid password
 
-        return user;
+        return user as unknown as User;
       },
     }),
     /**

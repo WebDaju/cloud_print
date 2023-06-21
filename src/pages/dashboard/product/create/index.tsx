@@ -21,7 +21,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { getServerAuthSession } from "@/server/auth";
 import { createProduct } from "@/types/products";
 import { api } from "@/utils/api";
-import { Iproducts } from "@/validation/products";
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const index: NextPageWithLayout = () => {
