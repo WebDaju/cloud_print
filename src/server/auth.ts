@@ -5,6 +5,7 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
+  User,
 } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
@@ -14,7 +15,7 @@ import bcrypt from "bcrypt";
 import { env } from "@/env.mjs";
 import { prisma } from "@/server/db";
 import { TRPCError } from "@trpc/server";
-import { User } from "@prisma/client";
+
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
