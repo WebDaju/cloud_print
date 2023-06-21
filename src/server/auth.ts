@@ -11,11 +11,10 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcrypt";
-import { env } from "../env.mjs";
-import { prisma } from "../server/db";
+import { env } from "@/env.mjs";
+import { prisma } from "@/server/db";
 import { TRPCError } from "@trpc/server";
-import { User } from "next-auth";
-import { User as PrismaUser } from "@prisma/client";
+import { User } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -27,6 +26,11 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: User;
   }
+
+  // interface User {
+  //   // ...other properties
+  //   // role: UserRole;
+  // }
 }
 
 /**
@@ -34,12 +38,6 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
-const convertPrismaUserToNextAuthUser = (user: PrismaUser): User => {
-  return {
-    ...user,
-    id: user.id.toString(), // Convert id to string
-  };
-};
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
@@ -57,8 +55,7 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: PrismaAdapter(prisma),
   pages: {
-    signIn: "/auth/login",
-    signOut: "/",
+    signIn: "/",
   },
   session: {
     strategy: "jwt",
@@ -80,7 +77,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "email", type: "text" },
         password: { label: "password", type: "password" },
       },
-      authorize: async (credentials): Promise<User | null> => {
+      authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -108,7 +105,7 @@ export const authOptions: NextAuthOptions = {
             message: "Invalid Password.",
           }); // invalid password
 
-        return convertPrismaUserToNextAuthUser(user);
+        return user;
       },
     }),
     /**
