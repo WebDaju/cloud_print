@@ -2,7 +2,7 @@
 import z from "zod";
 
 const productConnectSchema = z.object({
-  id: z.number(),
+  id: z.string(),
 });
 
 export const orderSchema = z.object({
@@ -14,12 +14,11 @@ export const orderSchema = z.object({
   subtotal: z.number(),
 });
 export const updateOrderSchema = z.object({
-  id: z.number(),
-
+  id: z.string(),
   status: z.string(),
 });
 
 export const orderDeleteSchema = z.object({
-  id: z.number().optional(),
+  id: z.string().optional(),
 });
 export type Iorders = z.infer<typeof orderSchema>;

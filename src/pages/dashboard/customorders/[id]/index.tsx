@@ -32,15 +32,15 @@ type OrderProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 const Orders: NextPageWithLayout<OrderProps> = (props) => {
   const router = useRouter();
   const { id } = props;
-  const { data }:any= api.order.getOrderById.useQuery({
+  const { data }:any= api.customOrder.getCustomOrderById.useQuery({
     id: id,
   });
 
   const [status, setStatus] = React.useState<string>("");
 
-  const { mutateAsync } = api.order.updateOrderStatus.useMutation({
+  const { mutateAsync } = api.customOrder.updateOrderStatus.useMutation({
     onSuccess: () => {
-      toast.success("Product created successfully!");
+      toast.success("Product Status Updated successfully!");
       router.reload();
     },
     onError: () => {
@@ -61,7 +61,7 @@ const Orders: NextPageWithLayout<OrderProps> = (props) => {
         description="Dashboard Single Product  Cloud Print"
       />
       <div className="m-auto flex h-screen w-full items-center  ">
-        <Card className="m-auto w-3/4 shadow-md">
+        <Card className="m-auto wfull shadow-md">
           <div className="flex justify-between p-10">
             <div className="flex flex-col gap-1">
               <p className="text-lg  text-gray-500">
@@ -71,13 +71,20 @@ const Orders: NextPageWithLayout<OrderProps> = (props) => {
               <p className="text-lg  ">Name:{data?.orders?.name}</p>
               <p className="text-lg  ">Address:{data?.orders?.address}</p>
               <p className="text-lg  ">Email:{data?.orders?.email}</p>
+              <p className="text-lg  ">Binding:{data?.orders?.binding}</p>
+              <p className="text-lg  ">BindingPrice:{data?.orders?.bindingPrice}</p>
+              <p className="text-lg  ">PDF:{data?.orders?.pdf}</p>
+              <p className="text-lg  ">pricePerPage:{data?.orders?.pricePerPage}</p>
+              <p className="text-lg  ">TotalPage:{data?.orders?.totalPages}</p>
               <p className="text-lg  ">Status:{data?.orders?.status}</p>
+              <p className="text-lg  ">TypeOfPrint:{data?.orders?.typeofPrint}</p>
+              
               <p className="text-lg  ">
                 <p className="text-lg">
                   Phone: {data?.orders?.phone?.toString()}
                 </p>
               </p>
-              <p className="text-lg  ">Subtotal:{data?.orders?.subtotal}</p>
+              <p className="text-lg  ">Total:{data?.orders?.total}</p>
             </div>
 
             <div className="flex flex-col">
@@ -95,33 +102,7 @@ const Orders: NextPageWithLayout<OrderProps> = (props) => {
               </select>
             </div>
           </div>
-          <div>
-            <h1 className="p-10 text-center text-2xl text-black">
-              Products
-              <hr></hr>
-            </h1>
-
-            {data?.orders?.products?.map((item:any, i:any) => {
-              return (
-                <div className="flex flex-col gap-2 p-5" key={i}>
-                  <p className="text-lg">ProductId:{item?.id}</p>
-                  <p className="text-lg">productName:{item?.name}</p>
-                  <p className="text-lg">Descritption:{item?.description}</p>
-                  <p className="text-lg">NoofPage:{item?.noofPage}</p>
-                  <p className="text-lg">total:{item?.total}</p>
-                  <p className="text-lg">PdfUrl:{item?.pdf}</p>
-                  <p className="text-lg">PricePerPage:{item?.pricePerPage}</p>
-                  <Image
-                    src={item?.image}
-                    alt={item?.name}
-                    height={100}
-                    width={100}
-                  />
-                </div>
-              );
-            })}
-            <div></div>
-          </div>
+        
           <div className="w-full p-10">
             <Button onClick={handleUpdateProduct} className="w-full p-2">
               Submit

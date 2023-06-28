@@ -9,20 +9,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Button, Input } from "@material-tailwind/react";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { pdfjs } from "react-pdf";
+import { PDFDocument } from "pdf-lib";
 import { toast } from "react-toastify";
 import DashboardNavbar from "@/components/Dashboard/DashboardNavbar";
 import DashboardSidebar from "@/components/Dashboard/DashboardSidebar";
 import { NextPageWithLayout } from "@/pages/_app";
-import { getServerAuthSession } from "@/server/auth";
 import { createProduct } from "@/types/products";
 import { api } from "@/utils/api";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
 const index: NextPageWithLayout = () => {
   const router = useRouter();
@@ -62,6 +57,7 @@ const index: NextPageWithLayout = () => {
       setProductData({ ...productData, [e.target.name]: e.target.value });
     }
   };
+
   const { mutateAsync } = api.product.createProduct.useMutation({
     onSuccess: () => {
       toast.success("Product created successfully!");
@@ -76,10 +72,9 @@ const index: NextPageWithLayout = () => {
     e.preventDefault();
     const pdfData = await fetch(pdfs);
     const pdfBlob = await pdfData.blob();
-    const pdfObjectUrl = URL.createObjectURL(pdfBlob);
-    const pdfNumPages = await pdfjs
-      .getDocument(pdfObjectUrl)
-      .promise.then((pdfDoc) => pdfDoc.numPages);
+    const pdfBuffer = await pdfBlob.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const pdfNumPages = pdfDoc.getPageCount();
 
     const data = {
       name,
@@ -87,13 +82,14 @@ const index: NextPageWithLayout = () => {
       noofPage: pdfNumPages,
       image: images,
       pdf: pdfs,
-      total:Number(pdfNumPages*Number(pricePerPage)),
+      total: Number(pdfNumPages * Number(pricePerPage)),
       pricePerPage: Number(pricePerPage),
     };
     console.log(data);
-  
+
     await mutateAsync(data);
   };
+
   return (
     <div>
       <h1 className="text-center ">Create Product</h1>
@@ -162,6 +158,7 @@ const index: NextPageWithLayout = () => {
     </div>
   );
 };
+
 index.getLayout = function getLayout(page) {
   return (
     <div className="h-screen w-full">
@@ -178,17 +175,17 @@ index.getLayout = function getLayout(page) {
 
 export default index;
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerAuthSession(ctx);
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/auth/login",
-        permanent: false,
-      },
-    };
-  }
-  return {
-    props: { session },
-  };
-};
+// export const getServerSideProps: GetServerSideProps = async (ctx) => {
+//   const session = await getServerAuthSession(ctx);
+//   if (!session) {
+//     return {
+//       redirect: {
+//         destination: "/auth/login",
+//         permanent: false,
+//       },
+//     };
+//   }
+//   return {
+//     props: { session },
+//   };
+// };

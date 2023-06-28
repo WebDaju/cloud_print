@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -24,14 +25,16 @@ import { api } from "@/utils/api";
 import { toast } from "react-toastify";
 import Meta from "@/components/Meta";
 
-type ProductProps = InferGetServerSidePropsType<typeof getServerSideProps>;
+type OrderProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
-const Product: NextPageWithLayout<ProductProps> = ({ products: data }) => {
-  const [products, setProducts] = useState(superjson.parse(data));
+const Order: NextPageWithLayout<OrderProps> = ({ orders: data }) => {
+  const [orders, setOrders] = useState(superjson.parse(data));
+  console.log(orders);
+
   const router = useRouter();
-  const { mutateAsync } = api.product.deleteProduct.useMutation({
+  const { mutateAsync } = api.customOrder.deleteCustomOrder.useMutation({
     onSuccess: () => {
-      toast.success("Product created successfully!");
+      toast.success("Order created successfully!");
       router.reload();
     },
     onError: () => {
@@ -39,13 +42,26 @@ const Product: NextPageWithLayout<ProductProps> = ({ products: data }) => {
     },
   });
 
-  const productDeleteHandler = async (id: string) => {
+  const orderDeleteHandler = async (id: string) => {
     await mutateAsync({
       id: id,
     });
   };
   const columns: GridColDef[] = [
-    { field: "id", headerName: "id", width: 90 },
+    { field: "id", headerName: "id", width: 200 },
+    {
+      field: "createdAt",
+      headerName: "createdAt",
+      width: 150,
+      editable: true,
+    },
+
+    {
+      field: "userId",
+      headerName: "userId",
+      width: 150,
+      editable: true,
+    },
     {
       field: "name",
       headerName: "Name",
@@ -53,45 +69,80 @@ const Product: NextPageWithLayout<ProductProps> = ({ products: data }) => {
       editable: true,
     },
     {
-      field: "description",
-      headerName: "Description",
+      field: "status",
+      headerName: "status",
       width: 150,
       editable: true,
     },
 
     {
-      field: "image",
-      headerName: "image",
-      type: "string",
-      width: 300,
+      field: "address",
+      headerName: "Address",
+      width: 150,
       editable: true,
     },
     {
-      field: "pricePerPage",
-      headerName: "pricePerPage",
-      type: "string",
-      width: 300,
+      field: "email",
+      headerName: "Email",
+      type: "number",
+      width: 200,
       editable: true,
     },
     {
-      field: "noofPage",
-      headerName: "noofPage",
-      type: "string",
-      width: 300,
-      editable: true,
-    },
-    {
-      field: "total",
-      headerName: "total",
-      type: "string",
-      width: 300,
+      field: "phone",
+      headerName: "phone",
+      type: "number",
+      width: 110,
       editable: true,
     },
     {
       field: "pdf",
       headerName: "pdf",
       type: "string",
-      width: 300,
+      width: 200,
+      editable: true,
+    },
+    {
+      field: "typeofPrint",
+      headerName: "typeofPrint",
+      type: "string",
+      width: 110,
+      editable: true,
+    },
+    {
+      field: "binding",
+      headerName: "binding",
+      type: "string",
+      width: 110,
+      editable: true,
+    },
+    {
+      field: "totalPages",
+      headerName: "totalPages",
+      type: "number",
+      width: 110,
+      editable: true,
+    },
+    {
+      field: "bindingPrice",
+      headerName: "bindingPrice",
+      type: "number",
+      width: 110,
+      editable: true,
+    },
+    {
+      field: "pricePerPage",
+      headerName: "pricePerPage",
+      type: "number",
+      width: 110,
+      editable: true,
+    },
+
+    {
+      field: "total",
+      headerName: "total",
+      type: "number",
+      width: 110,
       editable: true,
     },
 
@@ -110,15 +161,16 @@ const Product: NextPageWithLayout<ProductProps> = ({ products: data }) => {
               color="blue"
               className="cursor-pointer"
               onClick={() => {
-                router.push(`/dashboard/product/${id}`);
+                router.push(`/dashboard/customorders/${id}`);
               }}
+              // params.row._id
             />
 
             <AiFillDelete
               color="red"
               onClick={(e) => {
                 e.preventDefault();
-                productDeleteHandler(id);
+                orderDeleteHandler(id);
               }}
               className="cursor-pointer"
             />
@@ -128,52 +180,60 @@ const Product: NextPageWithLayout<ProductProps> = ({ products: data }) => {
     },
   ];
   const rows: any = [];
-  if (!Array.isArray(products)) {
+  if (!Array.isArray(orders)) {
     return null; // or any other appropriate fallback
   }
-  products?.forEach((item: any) => {
+  orders?.forEach((item: any) => {
     rows.push({
       id: item?.id,
+      createdAt: item?.createdAt,
+      userId: item?.userId,
       name: item.name,
-      description: item?.description,
-      image: item?.image,
-      pricePerPage: item?.pricePerPage,
-      noofPage: item?.noofPage,
-      total: item?.total,
+      status: item?.status,
+      address: item?.address,
+      email: item?.email,
+      phone: item?.phone,
       pdf: item?.pdf,
+      typeofPrint: item?.typeofPrint,
+      binding: item?.binding,
+      totalPages: item?.totalPages,
+      bindingPrice: item?.bindingPrice,
+      pricePerPage: item?.pricePerPage,
 
-      // public_id: item?.image?.public_id,
+      total: item.total,
     });
   });
 
   return (
     <Fragment>
       <Meta
-        title={"All Product Page Dashboord"}
+        title={"Custom order /Dashboord"}
         description="All Product Dashboard  Page Cloud Print"
       />
-      <div className="flex flex-col ">
-        <h1 className="p-5 text-center text-xl">All Products</h1>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
+      <div className="flex h-full flex-col">
+        <h1 className="p-5 text-center text-xl">All Custom Orders</h1>
+        <div className="flex-1 overflow-y-scroll">
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               },
-            },
-          }}
-          pageSizeOptions={[5]}
-          checkboxSelection
-          disableRowSelectionOnClick
-        />
+            }}
+            pageSizeOptions={[5]}
+            checkboxSelection
+            disableRowSelectionOnClick
+          />
+        </div>
       </div>
     </Fragment>
   );
 };
 
-Product.getLayout = function getLayout(page) {
+Order.getLayout = function getLayout(page) {
   return (
     <div className="h-screen w-full">
       <DashboardNavbar />
@@ -189,7 +249,7 @@ Product.getLayout = function getLayout(page) {
   );
 };
 
-export default Product;
+export default Order;
 
 export async function getServerSideProps(context: any) {
   const helpers = createServerSideHelpers({
@@ -201,12 +261,12 @@ export async function getServerSideProps(context: any) {
     transformer: superjson,
   });
 
-  const data = await helpers.product.getAllProduct.fetch();
+  const data = await helpers.customOrder.getAllCustomOrders.fetch();
 
   return {
     props: {
       trpcState: helpers.dehydrate(),
-      products: superjson.stringify(data?.products),
+      orders: superjson.stringify(data?.orders),
     },
   };
 }

@@ -11,7 +11,7 @@ export const productSchema = z.object({
 });
 
 export const getProductSchema = z.object({
-  id: z.number().optional(),
+  id: z.string().optional(),
   name: z.string().min(1),
   description: z.string().min(1),
   image: z.string(),
@@ -23,10 +23,10 @@ export const getProductSchema = z.object({
 });
 
 export const productDeleteSchema = z.object({
-  id: z.number().optional(),
+  id: z.string().optional(),
 });
 export const updateProductSchem = z.object({
-  id: z.number(),
+  id: z.string(),
   name: z.string().min(1),
   description: z.string().min(1),
   image: z.string(),

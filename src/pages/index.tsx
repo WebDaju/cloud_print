@@ -4,18 +4,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React from "react";
 import HomePage from "@/components/Home/HomePage";
-import { createServerSideHelpers } from "@trpc/react-query/server";
-
-import superjson from "superjson";
-import { prisma } from "../server/db";
-
-import { appRouter } from "@/server/api/root";
 
 import Meta from "@/components/Meta";
+import { useSession } from "next-auth/react";
 const Home = (
+
   
 ) => {
 
+   const {data}=useSession()
+   console.log(data)
   return (
     <div>
       <Meta title="HomePage" description="HomePage Cloud Print"/>

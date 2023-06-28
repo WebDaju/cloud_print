@@ -15,7 +15,7 @@ import cloudinary from "cloudinary";
 
 cloudinaryConfig();
 export const productsRouter = createTRPCRouter({
-  createProduct: protectedProcedure
+  createProduct: publicProcedure
     .input(productSchema)
     .mutation(async ({ input, ctx }) => {
       const { name, description, image, pricePerPage, noofPage, total, pdf } =
@@ -108,7 +108,7 @@ export const productsRouter = createTRPCRouter({
   }),
 
   getProductById: publicProcedure
-    .input(z.object({ id: z.number() }))
+    .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
       const products = await ctx.prisma.product.findUnique({
         where: {

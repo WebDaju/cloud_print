@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
@@ -124,7 +125,18 @@ export default function Example() {
       </div>
 
       {session?.user ? (
-        ""
+        <>
+          <Button
+          size="sm"
+          color="red"
+          className="rounded-full"
+            onClick={() => {
+              router.push("/user/custom");
+            }}
+          >
+            + Custom Print
+          </Button>
+        </>
       ) : (
         <Button color="red" onClick={userLoginHandler}>
           Login
@@ -146,8 +158,9 @@ export default function Example() {
             <Avatar
               variant="circular"
               size="sm"
+             
               alt="candice wu"
-              className="border border-blue-500 p-0.5"
+              className="border border-red-500 p-0.5"
               src={session?.user?.image || ""}
             />
           </Button>
@@ -161,6 +174,13 @@ export default function Example() {
             }}
           >
             <Typography>Track My Order</Typography>
+          </MenuItem>
+           <MenuItem
+            onClick={() => {
+              router.push(`/user/custom/order/${session?.user?.id}`);
+            }}
+          >
+            <Typography>My Custom  Order</Typography>
           </MenuItem>
           <MenuItem onClick={userLogoutHandler}>
             <Typography

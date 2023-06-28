@@ -42,7 +42,7 @@ const Order: NextPageWithLayout<OrderProps> = ({ orders: data }) => {
     },
   });
 
-  const orderDeleteHandler = async (id: number) => {
+  const orderDeleteHandler = async (id:string) => {
     await mutateAsync({
       id: id,
     });
@@ -112,7 +112,7 @@ const Order: NextPageWithLayout<OrderProps> = ({ orders: data }) => {
       type: "number",
       sortable: false,
       renderCell: (params) => {
-        const id = parseInt(`${params.row.id}`);
+        const id = `${params.row.id}`;
         return (
           <div className="flex items-center gap-7">
             <FaEdit

@@ -15,10 +15,12 @@ import {
 } from "../utils/localStorage";
 import { isServer } from "../utils/environment";
 import userDetailSlice from "./userDetailSlice";
+import customUserDetailSlice from "./customUserDetailSlice";
 
 const combinedReducer = combineReducers({
   cart: cartReducer,
   userDetail: userDetailSlice,
+  customUserDetail:customUserDetailSlice
 });
 
 const makeStore = () => {

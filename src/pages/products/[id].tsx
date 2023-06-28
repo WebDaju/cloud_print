@@ -28,7 +28,7 @@ const Product = (props: ProductProps) => {
   const { id } = props;
 
   const { data } = api.product.getProductById.useQuery({
-    id: parseInt(id),
+    id: id,
   });
   const [ourProducts, setOurProducts] = useState({
     id: "",
@@ -56,7 +56,7 @@ const Product = (props: ProductProps) => {
           addItem({
             quantity: noofCopies,
             product: data?.products,
-            id: parseInt(id),
+            id: id,
             total: allTotal,
           })
         );
@@ -77,7 +77,7 @@ const Product = (props: ProductProps) => {
   };
   return (
     <div className="m-auto mt-32 w-3/5 ">
-       <Meta title="ProductPage" description="Product Page Cloud Print"/>
+      <Meta title="ProductPage" description="Product Page Cloud Print" />
       <Grid container spacing={5}>
         <Grid item lg={6}>
           <div>

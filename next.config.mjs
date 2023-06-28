@@ -7,9 +7,14 @@ await import("./src/env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  images:{
-    domains:["res.cloudinary.com"]
+  images: {
+    domains: ["res.cloudinary.com"],
   },
+  // outputFileTracingExcludes: {
+  //   '*': [
+  //     'node_modules/canvas',
+  //   ],
+  // },
   /**
    * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config
    * out.

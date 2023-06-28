@@ -29,7 +29,7 @@ type ProductProps = InferGetServerSidePropsType<typeof getServerSideProps>;
 
 const Product: NextPageWithLayout<ProductProps> = ({ id }) => {
   const { data } = api.product.getProductById.useQuery({
-    id: parseInt(id),
+    id:id,
   });
 
   console.log(data);
@@ -84,7 +84,7 @@ const Product: NextPageWithLayout<ProductProps> = ({ id }) => {
     console.log(realdata);
     
     await mutateAsync({
-      id: parseInt(id),
+      id:id,
       name: realdata.name,
       description: realdata.description,
       image: realdata.image  || "",

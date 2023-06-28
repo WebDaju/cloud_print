@@ -24,10 +24,12 @@ import Image from "next/image";
 import { Divider } from "@mui/material";
 
 const Orders = ({ id }: any) => {
-  const { data } = api.order.singleUserOrderDetails.useQuery({
+  const { data } = api.customOrder.singleUserCustomOrderDetails.useQuery({
     id: id,
   });
 
+
+  {console.log(data)}
   return (
     <>
       <Meta
@@ -55,18 +57,26 @@ const Orders = ({ id }: any) => {
                 <p className="text-lg  ">Name:{data?.orders?.name}</p>
                 <p className="text-lg  ">Address:{data?.orders?.address}</p>
                 <p className="text-lg  ">Email:{data?.orders?.email}</p>
-
+                <p className="text-lg  ">Binding:{data?.orders?.binding}</p>
+                <p className="text-lg  ">BindingPrice:{data?.orders?.bindingPrice}</p>
+                <p className="text-lg  ">TotalPages:{data?.orders?.totalPages}</p>
+                <p className="text-lg  ">TypeOfPrint:{data?.orders?.typeofPrint}</p>
                 <p className="text-lg">
                   Phone: {data?.orders?.phone?.toString()}
                 </p>
-                <p className="text-lg  ">Subtotal:{data?.orders?.subtotal}</p>
+                <p className="text-lg ">Total: <span className="text-2xl font-bold text-red-400">
+                {data?.orders?.total}
+                    </span></p>
+
+             
+                {/* <p className="text-lg  ">Subtotal:{data?.orders?.subtotal}</p> */}
               </div>
               <div>
                 <p className="text-lg  ">Status:{data?.orders?.status}</p>
               </div>
             </div>
           </div>
-          <div>
+          {/* <div>
             <Divider></Divider>
             {data?.orders?.products?.map((item, i) => {
               return (
@@ -91,7 +101,7 @@ const Orders = ({ id }: any) => {
               );
             })}
             <div></div>
-          </div>
+          </div> */}
         </Card>
       </div>
     </>

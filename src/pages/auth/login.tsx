@@ -39,9 +39,9 @@ const Login = () => {
         validationSchema={LoginSchema}
         onSubmit={async (values) => {
           try {
-            const response=await signIn("credentials", {
-              ...values,
+            const response = await signIn("credentials", {
               redirect: false,
+              ...values
             });
             if (response?.ok) {
               toast.success("Successfully Signed in");

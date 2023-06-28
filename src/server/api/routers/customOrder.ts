@@ -5,35 +5,58 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import cloudinaryConfig from "../../../libs/cloudinaryConfig";
-import {
-  orderDeleteSchema,
-  orderSchema,
-  updateOrderSchema,
-} from "@/validation/orders";
-import { Status } from "@prisma/client";
+
 import sendMail from "@/libs/sendMailt";
+
+import {
+  customOrderDeleteSchema,
+  customOrderSchema,
+  updateCustomOrderSchema,
+} from "@/validation/customOrder";
+import cloudinary from "cloudinary";
 import { z } from "zod";
+import { Status } from "@prisma/client";
 cloudinaryConfig();
-export const orderRouters = createTRPCRouter({
-  createOrders: protectedProcedure
-    .input(orderSchema)
+export const customOrderRouters = createTRPCRouter({
+  createCustomOrders: protectedProcedure
+    .input(customOrderSchema)
     .mutation(async ({ input, ctx }) => {
-      const { name, phone, email, address, products, subtotal } = input;
+      const {
+        name,
+        phone,
+        email,
+        address,
+        total,
+        typeofPrint,
+        binding,
+        totalPages,
+        bindingPrice,
+        pricePerPage,
+        pdf,
+      } = input;
       const userId = ctx.session.user?.id ?? 0;
-      const orders = await ctx.prisma.order.create({
+      const pdfUrl = await cloudinary.v2.uploader.upload(pdf, {
+        folder: "cloudprint",
+        timeout: 120000,
+        resource_type: "raw",
+      });
+      const orders = await ctx.prisma.customOrder.create({
         data: {
           name,
           phone,
           email,
           address,
-          subtotal,
-          userId:userId,
-          products: {
-            connect: products,
-          },
+          total,
+          typeofPrint,
+          binding,
+          totalPages,
+          bindingPrice,
+          userId: userId,
+          pricePerPage,
+          pdf: pdfUrl.secure_url,
         },
       });
-      const getYourOrder = `http://localhost:3000/user/order/${userId}`;
+      const getYourOrder = `http://localhost:3000/user/custom/order/${userId}`;
 
       await sendMail({
         email: email,
@@ -48,11 +71,11 @@ export const orderRouters = createTRPCRouter({
       };
     }),
   updateOrderStatus: protectedProcedure
-    .input(updateOrderSchema)
+    .input(updateCustomOrderSchema)
     .mutation(async ({ input, ctx }) => {
       const { id, status } = input;
 
-      const orders = await ctx.prisma.order.update({
+      const orders = await ctx.prisma.customOrder.update({
         where: {
           id: id,
         },
@@ -67,45 +90,20 @@ export const orderRouters = createTRPCRouter({
         orders,
       };
     }),
-  getAllOrders: publicProcedure.query(async ({ ctx }) => {
-    const orders = await ctx.prisma.order.findMany({
-      include: {
-        products: true,
-      },
-    });
+  getAllCustomOrders: publicProcedure.query(async ({ ctx }) => {
+    const orders = await ctx.prisma.customOrder.findMany({});
     return {
       status: 200,
       message: "Products retrieved",
       orders,
     };
   }),
-  deleteOrder: protectedProcedure
-    .input(orderDeleteSchema)
+  deleteCustomOrder: protectedProcedure
+    .input(customOrderDeleteSchema)
     .mutation(async ({ ctx, input }) => {
-      const products = await ctx.prisma.order.delete({
+      const orders = await ctx.prisma.customOrder.delete({
         where: {
           id: input.id,
-        },
-        include: {
-          products: true,
-        },
-      });
-
-      if (!products) return null;
-
-      return {
-        products,
-      };
-    }),
-  getOrderById: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const orders = await ctx.prisma.order.findUnique({
-        where: {
-          id: input.id,
-        },
-        include: {
-          products: true,
         },
       });
 
@@ -115,16 +113,30 @@ export const orderRouters = createTRPCRouter({
         orders,
       };
     }),
-  singleUserOrderDetails: publicProcedure
+  getCustomOrderById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const orders = await ctx.prisma.order.findFirst({
+      const orders = await ctx.prisma.customOrder.findUnique({
+        where: {
+          id: input.id,
+        },
+       
+      });
+
+      if (!orders) return null;
+
+      return {
+        orders,
+      };
+    }),
+  singleUserCustomOrderDetails: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const orders = await ctx.prisma.customOrder.findFirst({
         where: {
           userId: input.id,
         },
-        include: {
-          products: true,
-        },
+       
       });
 
       if (!orders) return null;

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/consistent-type-imports */
 import { type GetServerSidePropsContext } from "next";
@@ -7,7 +5,6 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
-  User,
 } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
@@ -17,6 +14,8 @@ import bcrypt from "bcrypt";
 import { env } from "../env.mjs";
 import { prisma } from "../server/db";
 import { TRPCError } from "@trpc/server";
+import { User } from "next-auth";
+
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -26,34 +25,23 @@ import { TRPCError } from "@trpc/server";
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
+    user: User;
   }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
 }
-
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
-
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
+    },
+    session({ session, token }) {
+      if (session.user && token) {
+        session.user = token.user as User;
+      }
+      return session;
+    },
   },
   adapter: PrismaAdapter(prisma),
   pages: {
@@ -80,7 +68,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "email", type: "text" },
         password: { label: "password", type: "password" },
       },
-      async authorize(credentials, req) {
+      authorize: async (credentials): Promise<User | null> => {
         if (!credentials?.email || !credentials?.password)
           throw new TRPCError({
             code: "UNAUTHORIZED",
@@ -108,7 +96,7 @@ export const authOptions: NextAuthOptions = {
             message: "Invalid Password.",
           }); // invalid password
 
-        return user as unknown as User;
+        return user as unknown as User
       },
     }),
     /**

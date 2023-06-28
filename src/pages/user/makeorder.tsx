@@ -21,7 +21,6 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import { pdfjs } from "react-pdf";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { addUserDetail } from "../../store/userDetailSlice";
 import { useRouter } from "next/router";
